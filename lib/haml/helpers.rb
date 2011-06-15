@@ -438,6 +438,13 @@ MESSAGE
     #   @yield The block of Haml code within the tag
     # @overload haml_tag(name, text, *flags, attributes = {})
     #   @param text [#to_s] The text within the tag
+    
+    def end_tag_or_not(tag)
+      if !%w(html head body li dt dd p rt rp optgroup option colgroup thead tbody tfoot tr td th).include?(tag)
+        "</#{tag}>"
+      end
+    end
+    
     def haml_tag(name, *rest, &block)
       ret = ErrorReturn.new("haml_tag")
 
@@ -470,9 +477,9 @@ MESSAGE
           tab_up
           haml_concat text
           tab_down
-          haml_concat "</#{name}>"
+          haml_concat "#{end_tag_or_not(name)}"
         else
-          tag << text << "</#{name}>"
+          tag << text << "#{end_tag_or_not(name)}"
           haml_concat tag
         end
         return ret
@@ -483,7 +490,7 @@ MESSAGE
       end
 
       if flags.include?(:<)
-        tag << capture_haml(&block).strip << "</#{name}>"
+        tag << capture_haml(&block).strip << "#{end_tag_or_not(name)}"
         haml_concat tag
         return ret
       end
@@ -492,7 +499,7 @@ MESSAGE
       tab_up
       block.call
       tab_down
-      haml_concat "</#{name}>"
+      haml_concat "#{end_tag_or_not(name)}"
 
       ret
     end

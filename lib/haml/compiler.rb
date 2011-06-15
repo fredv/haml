@@ -5,6 +5,12 @@ module Haml
     include Haml::Util
 
     private
+    
+    def end_tag_or_not(tag)
+      if !%w(html head body li dt dd p rt rp optgroup option colgroup thead tbody tfoot tr td th).include?(tag)
+        "</#{tag}>"
+      end
+    end
 
     # Returns the precompiled string with the preamble and postamble
     def precompiled_with_ambles(local_names)
@@ -118,7 +124,7 @@ END
 
         open_tag = prerender_tag(t[:name], t[:self_closing], t[:attributes])
         if tag_closed
-          open_tag << "#{value}</#{t[:name]}>"
+          open_tag << "#{value}#{end_tag_or_not(t[:name])}"
           open_tag << "\n" unless t[:nuke_outer_whitespace]
         elsif !(parse || t[:nuke_inner_whitespace] ||
             (t[:self_closing] && t[:nuke_outer_whitespace]))
@@ -155,7 +161,7 @@ END
           end)
 
         if value && !parse
-          concat_merged_text("#{value}</#{t[:name]}>#{t[:nuke_outer_whitespace] ? "" : "\n"}")
+          concat_merged_text("#{value}#{end_tag_or_not(t[:name])}#{t[:nuke_outer_whitespace] ? "" : "\n"}")
         else
           @to_merge << [:text, '', 1] unless t[:nuke_inner_whitespace]
         end
@@ -170,7 +176,7 @@ END
         yield if block_given?
         @output_tabs -= 1 unless t[:nuke_inner_whitespace]
         rstrip_buffer! if t[:nuke_inner_whitespace]
-        push_merged_text("</#{t[:name]}>" + (t[:nuke_outer_whitespace] ? "" : "\n"),
+        push_merged_text("#{end_tag_or_not(t[:name])}" + (t[:nuke_outer_whitespace] ? "" : "\n"),
           t[:nuke_inner_whitespace] ? 0 : -1, !t[:nuke_inner_whitespace])
         @dont_indent_next_line = t[:nuke_outer_whitespace]
         return
@@ -178,7 +184,7 @@ END
 
       if parse
         push_script(value, t.merge(:in_tag => true))
-        concat_merged_text("</#{t[:name]}>" + (t[:nuke_outer_whitespace] ? "" : "\n"))
+        concat_merged_text("#{end_tag_or_not(t[:name])}" + (t[:nuke_outer_whitespace] ? "" : "\n"))
       end
     end
 
