@@ -7,7 +7,7 @@ module Haml
     private
     
     def end_tag_or_not(tag)
-      if !%w(html head body li dt dd p rt rp optgroup option colgroup thead tbody tfoot tr td th).include?(tag)
+      if !%w(html head body li dt dd rt rp optgroup option colgroup thead tbody tfoot tr td th).include?(tag)
         "</#{tag}>"
       end
     end
